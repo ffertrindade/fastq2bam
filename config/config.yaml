@@ -1,0 +1,29 @@
+## samples information and input files
+samples:
+  sample01:
+    lane01:
+      pe1: '/path/to/sample01_R1.fastq.gz'
+      pe2: '/path/to/sample01_R2.fastq.gz'
+  sample02:
+    lane01:
+      pe1: '/path/to/sample02_R1.fastq.gz'
+      pe2: '/path/to/sample02_R2.fastq.gz'
+
+reference: '/path/to/reference.fasta'
+
+# regions to be included in the final filtered bam file
+regions: '/path/to/regions.bed'
+
+## threads for overall tasks and for plotting coverage using deeptools
+threads: 8
+threadsPlotCoverage: 24
+
+## params for trimming reads using fastp
+fastpPar: '--cut_mean_quality 24 --cut_tail --trim_front1 10 --detect_adapter_for_pe --merge --dont_eval_duplication --length_required 50'
+
+## params for sambamba markdup
+# --hash-table-size parameter, the ideal number is depth * insert size
+markdupPar: '-r -p --hash-table-size 7000 --overflow-list-size 600000'
+
+## params for samtools view (filtering)
+samtoolsFiltPar: '-hb -q 30'
