@@ -5,7 +5,7 @@
 
 ##### Input functions #####
 
-configfile: "../config/config_20230831.yaml"
+configfile: "../config/config.yaml"
 
 def trimmed_files(wildcards):
 	for sample in list(config["samples"]):
@@ -22,9 +22,6 @@ rule all:
 	input:
 		fastqc_files,
 		trimmed_files,
-#		expand("../results/mapped_reads/{sample}.sorted.merged.bam", sample=config["samples"]),
-#		expand("../results/mapped_reads/{sample}.{stage}.bam", sample=config["samples"], stage=STAGES),
-#		expand("../results/mapped_reads/{sample}.{stage}.bam.bai", sample=config["samples"], stage=STAGES),
 		expand("../results/mapped_reads/{sample}.{stage}.flagstat.txt", sample=config["samples"], stage=STAGES),
 		expand("../results/deeptools/plotCoverage_{stage}.png", stage=STAGES),
 		expand("../results/deeptools/plotCoverage_{stage}.txt", stage=STAGES),
