@@ -2,7 +2,7 @@
 ##### The reference must be properly indexed for BWA
 ##### For many samples, the config.yaml can be created with "python scripts/creatingYamlRawFastq.py samples_list.txt path/to/fastq/ > config.yaml"
 ##### Trindade F., jul-2023
-import os
+
 
 ##### Input functions #####
 
