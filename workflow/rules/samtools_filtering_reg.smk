@@ -1,13 +1,15 @@
 rule bam_filtering_reg:
 	message: """##### Filtering bam regions {wildcards.sample}... #####"""
 	input:
-		bam="../results/mapped_reads/{sample}.sorted.merged.markdup.filtered.bam",
-		bai="../results/mapped_reads/{sample}.sorted.merged.markdup.filtered.bam.bai",
+		bam="results/mapped_reads/{sample}.sorted.merged.markdup.filtered.bam",
+		bai="results/mapped_reads/{sample}.sorted.merged.markdup.filtered.bam.bai",
 		reg={config['regions']}
 	output:
-		"../results/mapped_reads/{sample}.sorted.merged.markdup.filtered.reg.bam"
+		"results/mapped_reads/{sample}.sorted.merged.markdup.filtered.reg.bam"
+	conda:
+		config["environment"]
 	log:
-		"../results/logs/mapping/{sample}.bam_filtering_reg.log"
+		"results/logs/mapping/{sample}.bam_filtering_reg.log"
 	threads:
 		config["threads"]
 	shell:

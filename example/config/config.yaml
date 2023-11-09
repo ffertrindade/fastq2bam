@@ -3,25 +3,28 @@
 samples:
   sample01:
     lane01:
-      pe1: '/path/to/sample01_R1.fastq.gz'
-      pe2: '/path/to/sample01_R2.fastq.gz'
+      pe1: 'data/sample01_01_R1.fastq.gz'
+      pe2: 'data/sample01_01_R2.fastq.gz'
   sample02:
     lane01:
-      pe1: '/path/to/sample02_R1.fastq.gz'
-      pe2: '/path/to/sample02_R2.fastq.gz'
+      pe1: 'data/sample02_01_R1.fastq.gz'
+      pe2: 'data/sample02_01_R2.fastq.gz'
+    lane02:
+      pe1: 'data/sample02_02_R1.fastq.gz'
+      pe2: 'data/sample02_02_R2.fastq.gz'      
 
-reference: '/path/to/reference.fasta'
+reference: 'data/reference.fasta'
 
 # regions to be included in the final filtered bam file
-regions: '/path/to/regions.bed'
+regions: 'data/regions.bed'
 
 ## conda environment
 # unless you'd like to run using your own environment, do not change this
 environment: '../envs/fastq2bam.yml'
 
 ## threads for overall tasks and for plotting coverage using deeptools
-threads: 8
-threadsPlotCoverage: 24
+threads: 2
+threadsPlotCoverage: 6
 
 ## params for trimming reads using fastp
 fastpPar: '--cut_mean_quality 24 --cut_tail --trim_front1 10 --detect_adapter_for_pe --merge --dont_eval_duplication --length_required 50'
@@ -31,4 +34,4 @@ fastpPar: '--cut_mean_quality 24 --cut_tail --trim_front1 10 --detect_adapter_fo
 markdupPar: '-r -p --hash-table-size 7000 --overflow-list-size 600000'
 
 ## params for samtools view (filtering)
-samtoolsFiltPar: '-hb -q 30'
+samtoolsFiltPar: '-hb -q 20'

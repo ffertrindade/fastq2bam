@@ -16,9 +16,9 @@ It trims the reads using fastp [version used for test 0.23.4] (Chen, 2023) and c
 
 1a - You can use the script [creatingYamlRawFastq.py](https://github.com/ffertrindade/fastq2bam/blob/main/scripts/creatingYamlRawFastq.py) to assist you in creating the config.yaml for several input samples.
 
-2 - Edit the "configfile:" line of the workflow/snakefile with respective config file name.
+2 - The simplest way of running is <snakemake --snakefile workflow/Snakefile --use-conda --cores 8>.
 
-3 - The simplest way of running is just setting the number of threads <snakemake --cores 2> inside the workflow folder.
+2a - For testing, you can use the example files by running <snakemake -d example/ --snakefile workflow/Snakefile --use-conda --cores 8>
 
 
 If you use this workflow in a paper, don't forget to give credits to the authors by citing the URL of this (original) repository.

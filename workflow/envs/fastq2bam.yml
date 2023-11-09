@@ -1,0 +1,12 @@
+name: fastq2bam
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - bwa=0.7.17=h5bf99c6_8
+  - deeptools=2.5.7=py27_0
+  - fastp=0.23.2=hb7a2d85_2
+  - qualimap=2.2.2a=1
+  - sambamba=0.6.6=2
+  - samtools=1.5=1

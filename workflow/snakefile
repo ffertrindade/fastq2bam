@@ -1,35 +1,30 @@
 ##### Workflow for cleanning and mapping raw data
 ##### The reference must be properly indexed for BWA
-##### For many samples, the config.yaml can be created with "python ../scripts/creatingYamlRawFastq.py samples_list.txt path/to/fastq/ > config.yaml"
+##### For many samples, the config.yaml can be created with "python scripts/creatingYamlRawFastq.py samples_list.txt path/to/fastq/ > config.yaml"
 ##### Trindade F., jul-2023
+import os
 
 ##### Input functions #####
 
-configfile: "../config/config.yaml"
+configfile: "config/config.yaml"
 
 def trimmed_files(wildcards):
 	for sample in list(config["samples"]):
-		return expand("../results/trimmed_reads/{sample}.{lane}.trimmed_{type}.fastq.gz", sample=sample, lane=config["samples"][sample], type=['R1', 'R2', 'colap'])
-
-def fastqc_files(wildcards):
-	for sample in list(config["samples"]):
-		return expand("../results/fastqc_trimmed_reads/{sample}.{lane}.trimmed_{type}_fastqc.{ext}", sample=sample, lane=config["samples"][sample], type=['R1','R2','colap'], ext=['zip','html'])
+		return expand("results/trimmed_reads/{sample}.{lane}.trimmed_{type}.fastq.gz", sample=sample, lane=config["samples"][sample], type=['R1', 'R2', 'colap'])
 
 STAGES=['sorted.merged','sorted.merged.markdup','sorted.merged.markdup.filtered','sorted.merged.markdup.filtered.reg']
+
 
 ##### Target rules #####
 rule all:
 	input:
-		fastqc_files,
 		trimmed_files,
-		expand("../results/mapped_reads/{sample}.{stage}.flagstat.txt", sample=config["samples"], stage=STAGES),
-		expand("../results/deeptools/plotCoverage_{stage}.png", stage=STAGES),
-		expand("../results/deeptools/plotCoverage_{stage}.txt", stage=STAGES),
-		expand("../results/qualimap/{sample}.{stage}/{sample}.{stage}.pdf", sample=config["samples"], stage=STAGES),
-		expand("../results/qualimap/{sample}.{stage}/{sample}.{stage}.txt", sample=config["samples"], stage=STAGES)
+		expand("results/mapped_reads/flagstat/{sample}.{stage}.flagstat.txt", sample=config["samples"], stage=STAGES),
+		expand("results/deeptools/plotCoverage_{stage}.png", stage=STAGES),
+		expand("results/deeptools/plotCoverage_{stage}.txt", stage=STAGES),
+		expand("results/qualimap/{sample}.{stage}/{sample}.{stage}.pdf", sample=config["samples"], stage=STAGES),
+		expand("results/qualimap/{sample}.{stage}/{sample}.{stage}.txt", sample=config["samples"], stage=STAGES)
 
-
-##### Modules #####
 
 include: "rules/trimming_reads.smk"
 include: "rules/mapping_reads.smk"
