@@ -56,3 +56,18 @@ rule merge_raw_bam:
 		config["threads"]
 	shell:
 		"sambamba merge -p -t {threads} {output} {input.pe} {input.se} 2> {log}"
+
+rule bam_index_merged:
+	message: """##### Indexing {wildcards.sample}.sorted.merged... #####"""
+	input:
+		"results/mapped_reads/{sample}.sorted.merged.bam"
+	output:
+		temp("results/mapped_reads/{sample}.sorted.merged.bam.bai")
+	conda:
+		config["environment"]
+	log:
+		"results/logs/mapping/{sample}.sorted.merged.bam_index.log"
+	threads:
+		config["threads"]
+	shell:
+		"sambamba index -p -t {threads} {input} {output} 2> {log}"

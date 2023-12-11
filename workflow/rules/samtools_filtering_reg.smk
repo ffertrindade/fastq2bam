@@ -14,4 +14,18 @@ rule bam_filtering_reg:
 		config["threads"]
 	shell:
 		"samtools view -hb -@ {threads} -L {input.reg} -o {output} {input.bam} 2> {log}"
-	
+
+rule bam_index_reg:
+	message: """##### Indexing {wildcards.sample}.sorted.merged.markdup.filtered.reg... #####"""
+	input:
+		"results/mapped_reads/{sample}.sorted.merged.markdup.filtered.reg.bam"
+	output:
+		"results/mapped_reads/{sample}.sorted.merged.markdup.filtered.reg.bam.bai"
+	conda:
+		config["environment"]
+	log:
+		"results/logs/mapping/{sample}.sorted.merged.markdup.filtered.reg.bam_index.log"
+	threads:
+		config["threads"]
+	shell:
+		"sambamba index -p -t {threads} {input} {output} 2> {log}"

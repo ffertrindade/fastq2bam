@@ -34,7 +34,8 @@ rule flagstat:
 rule plotCoverage:
 	message: """##### Running plotCoverage for bams {wildcards.stage}... #####"""
 	input:
-		bam=expand("results/mapped_reads/{sample}.{{stage}}.bam", sample=config["samples"])
+		bam=expand("results/mapped_reads/{sample}.{{stage}}.bam", sample=config["samples"]),
+		bai=expand("results/mapped_reads/{sample}.{{stage}}.bam.bai", sample=config["samples"])
 	output:
 		png="results/deeptools/plotCoverage_{stage}.png",
 		txt="results/deeptools/plotCoverage_{stage}.txt"
@@ -45,4 +46,4 @@ rule plotCoverage:
 	threads:
 		config["threadsPlotCoverage"]
 	shell:
-		"plotCoverage -b {input} -p {threads} -o {output.png} > {output.txt} 2> {log}"
+		"plotCoverage -b {input.bam} -p {threads} -o {output.png} > {output.txt} 2> {log}"

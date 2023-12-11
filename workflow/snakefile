@@ -29,7 +29,6 @@ rule all:
 include: "rules/trimming_reads.smk"
 include: "rules/mapping_reads.smk"
 include: "rules/sambamba_markdup.smk"
-include: "rules/sambamba_index.smk"
 include: "rules/samtools_filtering.smk"
 include: "rules/samtools_filtering_reg.smk"
 include: "rules/bamqc.smk"
