@@ -10,3 +10,4 @@ dependencies:
   - qualimap=2.2.2a
   - sambamba=1.0
   - samtools=1.18
+  - bamutil=1.0.15

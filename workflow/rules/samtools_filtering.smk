@@ -1,10 +1,10 @@
 rule bam_filtering:
 	message: """##### Filtering bam {wildcards.sample}... #####"""
 	input:
-		bam="results/mapped_reads/{sample}.sorted.merged.markdup.bam",
-		bai="results/mapped_reads/{sample}.sorted.merged.markdup.bam.bai",
+		bam="results/mapped_reads/{sample}.markdup.bam",
+		bai="results/mapped_reads/{sample}.markdup.bam.bai",
 	output:
-		"results/mapped_reads/{sample}.sorted.merged.markdup.filtered.bam"
+		"results/mapped_reads/{sample}.markdup.filtered.bam"
 	conda:
 		config["environment"]
 	log:
@@ -17,15 +17,15 @@ rule bam_filtering:
 		"samtools view -@ {threads} {params} -o {output} {input.bam} 2> {log}"
 	
 rule bam_index_filt:
-	message: """##### Indexing {wildcards.sample}.sorted.merged.markdup.filtered... #####"""
+	message: """##### Indexing {wildcards.sample}.markdup.filtered... #####"""
 	input:
-		"results/mapped_reads/{sample}.sorted.merged.markdup.filtered.bam"
+		"results/mapped_reads/{sample}.markdup.filtered.bam"
 	output:
-		"results/mapped_reads/{sample}.sorted.merged.markdup.filtered.bam.bai"
+		"results/mapped_reads/{sample}.markdup.filtered.bam.bai"
 	conda:
 		config["environment"]
 	log:
-		"results/logs/mapping/{sample}.sorted.merged.markdup.filtered.bam_index.log"
+		"results/logs/mapping/{sample}.markdup.filtered.bam_index.log"
 	threads:
 		config["threads"]
 	shell:

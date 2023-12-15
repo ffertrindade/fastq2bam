@@ -1,9 +1,31 @@
+def output_merge(wildcards):
+	samples_multiple_lane = []
+	samples_single_lane = []
+
+	for sample in list(config["samples"]):
+
+		lanes = []
+		for lane in list(config["samples"][sample]):
+			lanes.append(lane)
+		
+		if len(lanes) > 1:
+			samples_multiple_lane.append(sample)
+		else:
+			samples_single_lane.append(sample)
+
+	return samples_multiple_lane, samples_single_lane
+
+samples_multiple_lane, samples_single_lane = output_merge(config)
+wildcard_constraints:
+	samples_multiple_lane = '|'.join([x for x in samples_multiple_lane]),
+	samples_single_lane = '|'.join([x for x in samples_single_lane])
+
 rule bwa_map_paired:
 	message: """##### Running bwa mem for mapping paired reads of {wildcards.sample}.{wildcards.lane}... #####"""
 	input:
 		{config["reference"]},
-		"results/trimmed_reads/{sample}.{lane}.trimmed_R1.fastq.gz",
-		"results/trimmed_reads/{sample}.{lane}.trimmed_R2.fastq.gz"
+		"results/trimmed_reads/{sample}.{lane}.trimmed_pair1.fastq.gz",
+		"results/trimmed_reads/{sample}.{lane}.trimmed_pair2.fastq.gz"
 	output:
 		"results/mapped_reads/individual_raw_bam/{sample}.{lane}.paired.bam"
 	conda:
@@ -20,54 +42,69 @@ rule bwa_map_paired:
 		"samtools view -Shb -F 4 - | "
 		"samtools sort -@ {threads} -O bam -T results/mapped_reads/individual_raw_bam/{wildcards.sample}.{wildcards.lane}.pe -o {output} -) 2> {log}"
 
-rule bwa_map_colap:
-	message: """##### Running bwa mem for mapping collapsed reads of {wildcards.sample}.{wildcards.lane}... #####"""
+rule clip:
+	message: """##### Clipping raw mapping for {wildcards.sample}.{wildcards.lane}... #####"""
 	input:
-		{config["reference"]},
-		"results/trimmed_reads/{sample}.{lane}.trimmed_colap.fastq.gz"
+		"results/mapped_reads/individual_raw_bam/{sample}.{lane}.paired.bam"
 	output:
-		"results/mapped_reads/individual_raw_bam/{sample}.{lane}.colap.bam"
+		temp("results/mapped_reads/individual_raw_bam/{sample}.{lane}.paired.clipped.bam")
 	conda:
 		config["environment"]
 	log:
-		"results/logs/mapping/individual_raw_bam/{sample}.{lane}.bwa_map_colap.log"
+		"results/logs/mapping/{sample}.{lane}.clip.log"
+	shell:
+		"bam clipOverlap --in {input} --out {output} --stats --noPhoneHome > {log}"
+
+rule merge_raw_bam:
+	message: """##### Merging mapped lanes for {wildcards.samples_multiple_lane}... #####"""
+	input:
+		lambda wildcards: expand("results/mapped_reads/individual_raw_bam/{{samples_multiple_lane}}.{lane}.paired.clipped.bam", lane=config["samples"][wildcards.samples_multiple_lane]),
+	output:
+		temp("results/mapped_reads/individual_raw_bam/merged_lanes/{samples_multiple_lane}.bam"),
+		temp("results/mapped_reads/individual_raw_bam/merged_lanes/{samples_multiple_lane}.bam.bai")
+	conda:
+		config["environment"]
+	log:
+		"results/logs/mapping/{samples_multiple_lane}.merge_raw_bam.log"
+	threads:
+		config["threads"]
+	shell:
+		"sambamba merge -p -t {threads} {output[0]} {input} 2> {log}"
+
+rule markdup_merged:
+	message: """##### Removing duplicated reads for sample {wildcards.samples_multiple_lane}... #####"""
+	input:
+		"results/mapped_reads/individual_raw_bam/merged_lanes/{samples_multiple_lane}.bam",
+		"results/mapped_reads/individual_raw_bam/merged_lanes/{samples_multiple_lane}.bam.bai"
+	output:
+		temp("results/mapped_reads/{samples_multiple_lane}.markdup.bam"),
+		temp("results/mapped_reads/{samples_multiple_lane}.markdup.bam.bai")
+	conda:
+		config["environment"]	
+	log:
+		"results/logs/mapping/{samples_multiple_lane}.markdup.log"
 	threads:
 		config["threads"]
 	params:
-		rg=r"@RG\tID:{sample}_{lane}\tSM:{sample}",
-		prefix="results/mapped_reads/individual_raw_bam/{sample}.{lane}.colap.bam"
+		config["markdupPar"]
 	shell:
-		"(bwa mem -R '{params.rg}' -t {threads} {input} | "
-		"samtools view -Shb -F 4 - | "
-		"samtools sort -@ {threads} -O bam -T results/mapped_reads/individual_raw_bam/{wildcards.sample}.{wildcards.lane}.se -o {output} -) 2> {log}"
+		"sambamba markdup {params} -t {threads} --tmpdir results/mapped_reads/ {input[0]} {output[0]} 2> {log}"
 
-rule merge_raw_bam:
-	message: """##### Merging collapsed and paired bams for {wildcards.sample}... #####"""
+rule markdup:
+	message: """##### Removing duplicated reads for sample {wildcards.samples_single_lane}... #####"""
 	input:
-		pe=lambda wildcards: expand("results/mapped_reads/individual_raw_bam/{{sample}}.{lane}.paired.bam", lane=config["samples"][wildcards.sample]),
-		se=lambda wildcards: expand("results/mapped_reads/individual_raw_bam/{{sample}}.{lane}.colap.bam", lane=config["samples"][wildcards.sample])
+		lambda wildcards: expand("results/mapped_reads/individual_raw_bam/{{samples_single_lane}}.{lane}.paired.clipped.bam", lane=config["samples"][wildcards.samples_single_lane])
 	output:
-		temp("results/mapped_reads/{sample}.sorted.merged.bam")
+		temp("results/mapped_reads/{samples_single_lane}.markdup.bam"),
+		temp("results/mapped_reads/{samples_single_lane}.markdup.bam.bai")
 	conda:
 		config["environment"]
 	log:
-		"results/logs/mapping/{sample}.merge_raw_bam.log"
+		"results/logs/mapping/{samples_single_lane}.markdup.log"
 	threads:
 		config["threads"]
+	params:
+		config["markdupPar"]
 	shell:
-		"sambamba merge -p -t {threads} {output} {input.pe} {input.se} 2> {log}"
+		"sambamba markdup {params} -t {threads} --tmpdir results/mapped_reads/ {input} {output[0]} 2> {log}"
 
-rule bam_index_merged:
-	message: """##### Indexing {wildcards.sample}.sorted.merged... #####"""
-	input:
-		"results/mapped_reads/{sample}.sorted.merged.bam"
-	output:
-		temp("results/mapped_reads/{sample}.sorted.merged.bam.bai")
-	conda:
-		config["environment"]
-	log:
-		"results/logs/mapping/{sample}.sorted.merged.bam_index.log"
-	threads:
-		config["threads"]
-	shell:
-		"sambamba index -p -t {threads} {input} {output} 2> {log}"

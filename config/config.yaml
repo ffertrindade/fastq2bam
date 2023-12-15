@@ -24,7 +24,9 @@ threads: 8
 threadsPlotCoverage: 24
 
 ## params for trimming reads using fastp
+# if clip is true, overlaped paired reads wont be merged
 fastpPar: '--cut_mean_quality 24 --cut_tail --trim_front1 10 --detect_adapter_for_pe --merge --dont_eval_duplication --length_required 50'
+clip: True
 
 ## params for sambamba markdup
 # --hash-table-size parameter, the ideal number is depth * insert size
