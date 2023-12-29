@@ -1,17 +1,20 @@
 ## samples information and input files
 # prefer to use complete path for all files
 samples:
-  sample01:
-    lane01:
-      pe1: 'data/sample01_01_R1.fastq.gz'
-      pe2: 'data/sample01_01_R2.fastq.gz'
   sample02:
     lane01:
-      pe1: 'data/sample02_01_R1.fastq.gz'
-      pe2: 'data/sample02_01_R2.fastq.gz'
+      pe1: data/sample02_01_R1.fastq.gz
+      pe2: data/sample02_01_R2.fastq.gz 
     lane02:
-      pe1: 'data/sample02_02_R1.fastq.gz'
-      pe2: 'data/sample02_02_R2.fastq.gz'      
+      pe1: data/sample02_02_R1.fastq.gz
+      pe2: data/sample02_02_R2.fastq.gz       
+  sample01:
+    lane01:
+      pe1: data/sample01_01_R1.fastq.gz
+      pe2: data/sample01_01_R2.fastq.gz
+    lane02:
+      pe1: data/sample01_02_R1.fastq.gz
+      pe2: data/sample01_02_R2.fastq.gz
 
 reference: 'data/reference.fasta'
 

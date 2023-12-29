@@ -16,9 +16,14 @@ def output_merge(wildcards):
 	return samples_multiple_lane, samples_single_lane
 
 samples_multiple_lane, samples_single_lane = output_merge(config)
-wildcard_constraints:
-	samples_multiple_lane = '|'.join([x for x in samples_multiple_lane]),
-	samples_single_lane = '|'.join([x for x in samples_single_lane])
+
+if samples_multiple_lane == []:
+	wildcard_constraints: samples_multiple_lane = "^$"
+elif samples_single_lane == []:
+	wildcard_constraints: samples_single_lane = "^$"
+else:
+	wildcard_constraints: samples_multiple_lane = '|'.join([x for x in samples_multiple_lane]),
+	wildcard_constraints: samples_single_lane = '|'.join([x for x in samples_single_lane])
 
 rule bwa_map_paired:
 	message: """##### Running bwa mem for mapping paired reads of {wildcards.sample}.{wildcards.lane}... #####"""
